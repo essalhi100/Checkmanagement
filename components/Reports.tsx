@@ -91,13 +91,16 @@ const Reports: React.FC<ReportsProps> = ({ checks, currency }) => {
   const monthlyData = useMemo(() => {
     const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
     const data: any[] = [];
-    const last6Months = Array.from({ length: 6 }, (_, i) => {
+    
+    // Updated to last 12 months
+    const last12Months = Array.from({ length: 12 }, (_, i) => {
       const d = new Date();
-      d.setMonth(d.getMonth() - (5 - i));
+      // To get 12 months ending with current month
+      d.setMonth(d.getMonth() - (11 - i));
       return { month: d.getMonth(), year: d.getFullYear(), label: months[d.getMonth()] };
     });
 
-    last6Months.forEach(m => {
+    last12Months.forEach(m => {
       const inVal = checks.filter(c => {
         if (!c.due_date) return false;
         const d = new Date(c.due_date);
@@ -130,7 +133,6 @@ const Reports: React.FC<ReportsProps> = ({ checks, currency }) => {
     });
   }, [checks, searchTerm, typeFilter, statusFilter, dateRange]);
 
-  // Pagination Logic
   const totalPages = Math.ceil(filteredChecks.length / ITEMS_PER_PAGE);
   const paginatedChecks = filteredChecks.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -159,7 +161,7 @@ const Reports: React.FC<ReportsProps> = ({ checks, currency }) => {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase">Intelligence de Rapport</h2>
-          <p className="text-white/40 text-sm">Audit en temps réel et analyse du capital</p>
+          <p className="text-white/40 text-sm">Analyse annuelle du capital et audit</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button 
@@ -269,7 +271,7 @@ const Reports: React.FC<ReportsProps> = ({ checks, currency }) => {
           <div className="flex items-center justify-between mb-8">
              <h4 className="text-lg font-bold flex items-center gap-3">
                <TrendingUp className="text-gold" />
-               Flux de Capital Mensuel
+               Flux de Capital Mensuel (12 Mois)
              </h4>
              <div className="flex gap-4">
                 <div className="flex items-center gap-2">
@@ -282,18 +284,18 @@ const Reports: React.FC<ReportsProps> = ({ checks, currency }) => {
                 </div>
              </div>
           </div>
-          <div className="h-[300px]">
+          <div className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
-                <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={11} tickLine={false} axisLine={false} />
+                <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} axisLine={false} interval={0} />
                 <YAxis stroke="rgba(255,255,255,0.3)" fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip 
                   cursor={{ fill: 'rgba(255,255,255,0.02)' }}
                   contentStyle={{ backgroundColor: '#0a0d18', borderColor: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: '12px' }}
                 />
-                <Bar dataKey="entrants" fill="#10b981" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="sortants" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="entrants" fill="#10b981" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="sortants" fill="#ef4444" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -304,13 +306,13 @@ const Reports: React.FC<ReportsProps> = ({ checks, currency }) => {
              <Building2 className="text-gold" />
              Répartition par Statut
            </h4>
-           <div className="h-[300px] flex items-center justify-center relative">
+           <div className="h-[350px] flex items-center justify-center relative">
              <ResponsiveContainer width="100%" height="100%">
                <PieChart>
                  <Pie
                    data={statusChartData}
                    innerRadius={80}
-                   outerRadius={100}
+                   outerRadius={110}
                    paddingAngle={10}
                    dataKey="value"
                    stroke="none"
