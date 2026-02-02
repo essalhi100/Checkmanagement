@@ -90,32 +90,24 @@ const Reports: React.FC<ReportsProps> = ({ checks, currency }) => {
 
   const monthlyData = useMemo(() => {
     const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-    const data: any[] = [];
+    const currentYear = new Date().getFullYear();
     
-    // Updated to last 12 months
-    const last12Months = Array.from({ length: 12 }, (_, i) => {
-      const d = new Date();
-      // To get 12 months ending with current month
-      d.setMonth(d.getMonth() - (11 - i));
-      return { month: d.getMonth(), year: d.getFullYear(), label: months[d.getMonth()] };
-    });
-
-    last12Months.forEach(m => {
+    // Generate data from January to December of the current year
+    return months.map((monthLabel, monthIndex) => {
       const inVal = checks.filter(c => {
         if (!c.due_date) return false;
         const d = new Date(c.due_date);
-        return d.getMonth() === m.month && d.getFullYear() === m.year && c.type === CheckType.INCOMING;
+        return d.getMonth() === monthIndex && d.getFullYear() === currentYear && c.type === CheckType.INCOMING;
       }).reduce((sum, c) => sum + c.amount, 0);
 
       const outVal = checks.filter(c => {
         if (!c.due_date) return false;
         const d = new Date(c.due_date);
-        return d.getMonth() === m.month && d.getFullYear() === m.year && c.type === CheckType.OUTGOING;
+        return d.getMonth() === monthIndex && d.getFullYear() === currentYear && c.type === CheckType.OUTGOING;
       }).reduce((sum, c) => sum + c.amount, 0);
 
-      data.push({ name: m.label, entrants: inVal, sortants: outVal });
+      return { name: monthLabel, entrants: inVal, sortants: outVal };
     });
-    return data;
   }, [checks]);
 
   const filteredChecks = useMemo(() => {
@@ -161,7 +153,7 @@ const Reports: React.FC<ReportsProps> = ({ checks, currency }) => {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase">Intelligence de Rapport</h2>
-          <p className="text-white/40 text-sm">Analyse annuelle du capital et audit</p>
+          <p className="text-white/40 text-sm">Analyse annuelle du capital ({new Date().getFullYear()})</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button 
@@ -271,7 +263,7 @@ const Reports: React.FC<ReportsProps> = ({ checks, currency }) => {
           <div className="flex items-center justify-between mb-8">
              <h4 className="text-lg font-bold flex items-center gap-3">
                <TrendingUp className="text-gold" />
-               Flux de Capital Mensuel (12 Mois)
+               Flux de Capital Mensuel (Jan - Déc {new Date().getFullYear()})
              </h4>
              <div className="flex gap-4">
                 <div className="flex items-center gap-2">
